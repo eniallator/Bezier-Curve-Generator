@@ -1,40 +1,22 @@
 [
     {
-        "id": "example_checkbox",
-        "label": "Example Checkbox",
-        "type": "checkbox",
-        "default": true
-    },
-    {
-        "id": "example_range",
-        "label": "Example Range",
-        "type": "range",
-        "default": 5,
-        "attrs": {
-            "min": 1,
-            "max": 10,
-            "step": 0.5
-        }
-    },
-    {
-        "id": "example_number",
-        "label": "Example Number",
+        "id": "precision",
+        "label": "Curve Precision",
         "type": "number",
-        "default": 5,
+        "default": 50,
         "attrs": {
-            "min": 1,
-            "max": 10
+            "min": 2,
+            "max": 1000
         }
     },
     {
-        "id": "example_colour",
-        "label": "Example Colour",
-        "type": "color",
-        "default": "FF5A5F"
-    },
-    {
-        "id": "example_button",
-        "text": "Example Button",
-        "type": "button"
+        "id": "num-bezier-points",
+        "label": "Number of Bezier Points",
+        "type": "number",
+        "default": 2,
+        "attrs": {
+            "min": 2,
+            "max": 25
+        }
     }
 ]

@@ -55,3 +55,34 @@ input[type="color"]::-webkit-color-swatch {
 .menu-offset {
   margin-bottom: 0.4rem !important;
 }
+
+#bezier-points {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+}
+
+#bezier-points > input {
+  margin-top: 40px;
+  margin-left: 200px;
+}
+
+#bezier-points span {
+  display: inline-block;
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 5px solid rgb(161, 161, 161);
+}
+#bezier-points span:first-child {
+  background-color: lightcoral;
+}
+#bezier-points span:last-child {
+  background-color: lightgreen;
+}
+#bezier-points #points-between span {
+  background-color: white;
+}
