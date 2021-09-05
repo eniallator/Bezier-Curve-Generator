@@ -1,3 +1,3 @@
-# Web-Animation-Template
+# Bezier Curve Generator
 
-My template repository for creating web animations
+My implementation of the bezier curve algorithm which allows you to edit them in real-time
