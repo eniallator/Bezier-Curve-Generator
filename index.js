@@ -103,8 +103,8 @@ function draw() {
   let nextAccBezierDist = 0;
   let accBezierDist = 0;
 
-  for (let i = 0; i < curvePoints.length; i++) {
-    const percent = i / curvePoints.length;
+  for (let i = 0; i < precision; i++) {
+    const percent = i / precision;
     const currDist = percent * fullDist;
     let lastPoint = false;
     while (nextAccBezierDist < currDist && !lastPoint) {
