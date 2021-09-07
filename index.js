@@ -252,6 +252,7 @@ function init() {
           bezierPoints.splice(i, 1);
         }
       }
+      draw();
     },
     ["num-bezier-points"]
   );
