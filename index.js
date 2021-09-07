@@ -71,32 +71,37 @@ function initSpanDragEvents(span, index) {
     span.offsetTop + span.offsetHeight / 2
   );
 
-  span.ondrag = span.ondragend = (evt) => {
-    if (evt.clientX && evt.clientY) {
-      spanPos.setHead(
-        clamp(
-          evt.clientX,
-          span.offsetWidth / 2,
-          canvas.width - span.offsetWidth / 2
-        ),
-        clamp(
-          evt.clientY,
-          span.offsetHeight / 2,
-          canvas.height - span.offsetHeight / 2
-        )
-      );
-      span.style.left = `${clamp(
-        evt.clientX - span.offsetWidth / 2,
-        0,
-        canvas.width - span.offsetWidth
-      )}px`;
-      span.style.top = `${clamp(
-        evt.clientY - span.offsetHeight / 2,
-        0,
-        canvas.height - span.offsetHeight
-      )}px`;
-      updateBezierPointDistances();
-      draw();
+  const updateSpanPos = (x, y) => {
+    spanPos.setHead(
+      clamp(x, span.offsetWidth / 2, canvas.width - span.offsetWidth / 2),
+      clamp(y, span.offsetHeight / 2, canvas.height - span.offsetHeight / 2)
+    );
+    span.style.left = `${clamp(
+      x - span.offsetWidth / 2,
+      0,
+      canvas.width - span.offsetWidth
+    )}px`;
+    span.style.top = `${clamp(
+      y - span.offsetHeight / 2,
+      0,
+      canvas.height - span.offsetHeight
+    )}px`;
+    updateBezierPointDistances();
+    draw();
+  };
+
+  span.ondrag =
+    span.ondragend =
+    span.ontouchend =
+      (evt) => {
+        if (evt.clientX && evt.clientY) {
+          updateSpanPos(evt.clientX, evt.clientY);
+        }
+      };
+
+  span.ontouchmove = (evt) => {
+    if (evt.touches[0].clientX && evt.touches[0].clientY) {
+      updateSpanPos(evt.touches[0].clientX, evt.touches[0].clientY);
     }
   };
 
