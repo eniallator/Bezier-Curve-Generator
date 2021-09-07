@@ -7,7 +7,27 @@ const paramConfig = new ParamConfig(
   window.location.search,
   $("#cfg-outer")
 );
-paramConfig.addCopyToClipboardHandler("#share-btn");
+
+const initialPositions = paramConfig.extra
+  ? paramConfig.extra.split(",").map((strNum) => Number(strNum))
+  : [];
+
+const initialPositionPrecision = 10000;
+paramConfig.addCopyToClipboardHandler("#share-btn", () =>
+  bezierPoints.reduce(
+    (acc, item) =>
+      acc +
+      (acc === "" ? "" : ",") +
+      `${
+        Math.round((item.pt.x / canvas.width) * initialPositionPrecision) /
+        initialPositionPrecision
+      },${
+        Math.round((item.pt.y / canvas.height) * initialPositionPrecision) /
+        initialPositionPrecision
+      }`,
+    ""
+  )
+);
 
 window.onresize = (evt) => {
   canvas.width = $("#canvas").width();
@@ -163,7 +183,19 @@ function draw() {
 }
 
 function init() {
-  for (let span of $("#bezier-points span")) {
+  let initializing = true;
+  const endSpans = $("#bezier-points span");
+  for (let i = 0; i < endSpans.length; i++) {
+    const extraIndex = 2 * i * (paramConfig.getVal("num-bezier-points") - 1);
+    const span = endSpans[i];
+    if (extraIndex + 1 < initialPositions.length) {
+      span.style.left = isNaN(initialPositions[extraIndex])
+        ? span.style.left
+        : canvas.width * initialPositions[extraIndex] + "px";
+      span.style.top = isNaN(initialPositions[extraIndex])
+        ? span.style.top
+        : canvas.height * initialPositions[extraIndex + 1] + "px";
+    }
     initSpanDragEvents(span);
   }
 
@@ -174,9 +206,23 @@ function init() {
 
       if (n > bezierPoints.length) {
         for (let i = bezierPoints.length - 1; i < n - 1; i++) {
-          $("#points-between").append(
-            `<span draggable="true" style="top: 10%; left: 50%;" data-index="${i}"></span>`
-          );
+          if (initializing && 2 * i + 1 < initialPositions.length) {
+            $("#points-between").append(
+              `<span draggable="true" style="left: ${
+                isNaN(initialPositions[2 * i])
+                  ? "50%"
+                  : canvas.width * initialPositions[2 * i] + "px"
+              }; top: ${
+                isNaN(initialPositions[2 * i + 1])
+                  ? "50%"
+                  : canvas.height * initialPositions[2 * i + 1] + "px"
+              };" data-index="${i}"></span>`
+            );
+          } else {
+            $("#points-between").append(
+              `<span draggable="true" style="left: 50%; top: 10%;" data-index="${i}"></span>`
+            );
+          }
           initSpanDragEvents(
             $(`#points-between span[data-index="${i}"]`)[0],
             i
@@ -195,6 +241,8 @@ function init() {
   paramConfig.addListener(() => draw());
 
   paramConfig.tellListeners(true);
+
+  initializing = false;
 
   updateBezierPointDistances();
   draw();
