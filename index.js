@@ -11,6 +11,7 @@ const paramConfig = new ParamConfig(
 const initialPositions = paramConfig.extra
   ? paramConfig.extra.split(",").map((strNum) => Number(strNum))
   : [];
+let initializing = true;
 
 const initialPositionPrecision = 10000;
 paramConfig.addCopyToClipboardHandler("#share-btn", () =>
@@ -30,8 +31,21 @@ paramConfig.addCopyToClipboardHandler("#share-btn", () =>
 );
 
 window.onresize = (evt) => {
+  const oldDim = new Vector(canvas.width, canvas.height);
   canvas.width = $("#canvas").width();
   canvas.height = $("#canvas").height();
+  const scaleFactor = new Vector(canvas.width, canvas.height).divide(oldDim);
+  if (!initializing) {
+    bezierPoints.forEach((item) => item.pt.multiply(scaleFactor));
+    const spans = $("#bezier-points span");
+    for (let i = 0; i < spans.length; i++) {
+      spans[i].style.left =
+        bezierPoints[i].pt.x - spans[i].offsetWidth / 2 + "px";
+      spans[i].style.top =
+        bezierPoints[i].pt.y - spans[i].offsetHeight / 2 + "px";
+    }
+    draw();
+  }
 };
 window.onresize();
 
@@ -183,7 +197,6 @@ function draw() {
 }
 
 function init() {
-  let initializing = true;
   const endSpans = $("#bezier-points span");
   for (let i = 0; i < endSpans.length; i++) {
     const extraIndex = 2 * i * (paramConfig.getVal("num-bezier-points") - 1);
