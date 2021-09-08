@@ -5,33 +5,33 @@ const mouse = new Mouse(canvas);
 const paramConfig = new ParamConfig(
   "./config.json",
   window.location.search,
-  $("#cfg-outer")
+  $("#cfg-outer"),
+  true
 );
 
 const initialPositions = paramConfig.extra
-  ? paramConfig.extra.split(",").map((strNum) => Number(strNum))
+  ? [...paramConfig.extra].map((strNum) => base64ToPosInt(strNum) / 64)
   : [];
 let initializing = true;
 
-const initialPositionPrecision = 10000;
 paramConfig.addCopyToClipboardHandler("#share-btn", () =>
   bezierPoints.reduce(
     (acc, item, i) =>
       acc +
-      (acc === "" ? "" : ",") +
-      `${
-        Math.round(
+      intToBase64(
+        Math.floor(
           ((item.pt.x - $("#bezier-points span")[i].offsetWidth / 2) /
             canvas.width) *
-            initialPositionPrecision
-        ) / initialPositionPrecision
-      },${
-        Math.round(
+            64
+        )
+      ) +
+      intToBase64(
+        Math.floor(
           ((item.pt.y - $("#bezier-points span")[i].offsetHeight / 2) /
             canvas.height) *
-            initialPositionPrecision
-        ) / initialPositionPrecision
-      }`,
+            64
+        )
+      ),
     ""
   )
 );

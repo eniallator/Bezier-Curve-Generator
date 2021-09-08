@@ -69,7 +69,7 @@ class ParamConfig {
     this.listeners = [];
     this.updates = [];
     const initialValues = this.parseUrlParams(rawUrlParams);
-    this.extra = initialValues.extra;
+    this.extra = shortUrl ? initialValues.e : initialValues.extra;
     this.shortUrl = shortUrl;
 
     fetch(configLocation)
@@ -255,7 +255,7 @@ class ParamConfig {
       if (params !== "") {
         params += "&";
       }
-      params += "extra=" + extra;
+      params += (this.shortUrl ? "e=" : "extra=") + extra;
     }
     return params;
   }
