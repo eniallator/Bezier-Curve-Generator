@@ -96,17 +96,27 @@ function initSpanDragEvents(span, index) {
     draw();
   };
 
-  span.ondrag =
-    span.ondragend =
-    span.ontouchend =
-      (evt) => {
-        if (evt.clientX && evt.clientY) {
-          updateSpanPos(evt.clientX, evt.clientY);
-        }
-      };
+  span.ondragend = span.ontouchend = (evt) => {
+    if (evt.clientX && evt.clientY) {
+      updateSpanPos(evt.clientX, evt.clientY);
+    }
+  };
+  span.ondrag = (evt) => {
+    if (
+      !paramConfig.getVal("update-when-dropped") &&
+      evt.clientX &&
+      evt.clientY
+    ) {
+      updateSpanPos(evt.clientX, evt.clientY);
+    }
+  };
 
   span.ontouchmove = (evt) => {
-    if (evt.touches[0].clientX && evt.touches[0].clientY) {
+    if (
+      !paramConfig.getVal("update-when-dropped") &&
+      evt.touches[0].clientX &&
+      evt.touches[0].clientY
+    ) {
       updateSpanPos(evt.touches[0].clientX, evt.touches[0].clientY);
     }
   };

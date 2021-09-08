@@ -36,5 +36,12 @@
         "label": "Draw Bezier Curve",
         "type": "checkbox",
         "default": true
+    },
+    {
+        "id": "update-when-dropped",
+        "label": "Update when dropped",
+        "type": "checkbox",
+        "tooltip": "Only updates when you have finished dragging a point for performance reasons",
+        "default": false
     }
 ]
