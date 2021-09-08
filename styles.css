@@ -76,6 +76,7 @@ input[type="color"]::-webkit-color-swatch {
   height: 25px;
   border-radius: 50%;
   border: 5px solid rgb(161, 161, 161);
+  cursor: move;
 }
 #bezier-points span:first-child {
   background-color: lightcoral;

@@ -16,15 +16,21 @@ let initializing = true;
 const initialPositionPrecision = 10000;
 paramConfig.addCopyToClipboardHandler("#share-btn", () =>
   bezierPoints.reduce(
-    (acc, item) =>
+    (acc, item, i) =>
       acc +
       (acc === "" ? "" : ",") +
       `${
-        Math.round((item.pt.x / canvas.width) * initialPositionPrecision) /
-        initialPositionPrecision
+        Math.round(
+          ((item.pt.x - $("#bezier-points span")[i].offsetWidth / 2) /
+            canvas.width) *
+            initialPositionPrecision
+        ) / initialPositionPrecision
       },${
-        Math.round((item.pt.y / canvas.height) * initialPositionPrecision) /
-        initialPositionPrecision
+        Math.round(
+          ((item.pt.y - $("#bezier-points span")[i].offsetHeight / 2) /
+            canvas.height) *
+            initialPositionPrecision
+        ) / initialPositionPrecision
       }`,
     ""
   )
@@ -136,69 +142,77 @@ function draw() {
 
   curvePoints.push(bezierPoints[bezierPoints.length - 1].pt);
 
-  const fullDist = bezierPoints.reduce((acc, item) => acc + item.distToNext, 0);
+  if (paramConfig.getVal("draw-rainbow-lines")) {
+    const fullDist = bezierPoints.reduce(
+      (acc, item) => acc + item.distToNext,
+      0
+    );
+    let currBezierPointsIndex = 0;
+    let nextAccBezierDist = 0;
+    let accBezierDist = 0;
 
-  let currBezierPointsIndex = 0;
-  let nextAccBezierDist = 0;
-  let accBezierDist = 0;
-
-  for (let i = 0; i < precision; i++) {
-    const percent = i / precision;
-    const currDist = percent * fullDist;
-    let lastPoint = false;
-    while (nextAccBezierDist < currDist && !lastPoint) {
-      accBezierDist = nextAccBezierDist;
-      nextAccBezierDist += bezierPoints[currBezierPointsIndex].distToNext;
-      if (bezierPoints[currBezierPointsIndex].distToNext === null) {
-        lastPoint = true;
-      } else {
-        currBezierPointsIndex++;
+    for (let i = 0; i < precision; i++) {
+      const percent = i / precision;
+      const currDist = percent * fullDist;
+      let lastPoint = false;
+      while (nextAccBezierDist < currDist && !lastPoint) {
+        accBezierDist = nextAccBezierDist;
+        nextAccBezierDist += bezierPoints[currBezierPointsIndex].distToNext;
+        if (bezierPoints[currBezierPointsIndex].distToNext === null) {
+          lastPoint = true;
+        } else {
+          currBezierPointsIndex++;
+        }
       }
-    }
 
-    let pointBetweenBezierPoints;
-    if (currBezierPointsIndex === 0 || lastPoint) {
-      pointBetweenBezierPoints = bezierPoints[currBezierPointsIndex].pt;
-    } else {
-      pointBetweenBezierPoints = bezierPoints[
-        currBezierPointsIndex - 1
-      ].pt.lerp(
-        bezierPoints[currBezierPointsIndex].pt,
-        (currDist - accBezierDist) / (nextAccBezierDist - accBezierDist)
-      );
-    }
+      let pointBetweenBezierPoints;
+      if (currBezierPointsIndex === 0 || lastPoint) {
+        pointBetweenBezierPoints = bezierPoints[currBezierPointsIndex].pt;
+      } else {
+        pointBetweenBezierPoints = bezierPoints[
+          currBezierPointsIndex - 1
+        ].pt.lerp(
+          bezierPoints[currBezierPointsIndex].pt,
+          (currDist - accBezierDist) / (nextAccBezierDist - accBezierDist)
+        );
+      }
 
-    ctx.strokeStyle = `hsl(${percent * 360}, 100%, 50%)`;
-    ctx.beginPath();
-    ctx.moveTo(curvePoints[i].x, curvePoints[i].y);
-    ctx.lineTo(pointBetweenBezierPoints.x, pointBetweenBezierPoints.y);
-    ctx.stroke();
+      ctx.strokeStyle = `hsl(${percent * 360}, 100%, 50%)`;
+      ctx.beginPath();
+      ctx.moveTo(curvePoints[i].x, curvePoints[i].y);
+      ctx.lineTo(pointBetweenBezierPoints.x, pointBetweenBezierPoints.y);
+      ctx.stroke();
+    }
   }
 
   ctx.strokeStyle = "white";
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let i = bezierPoints.length - 1; i >= 0; i--) {
-    const pt = bezierPoints[i].pt;
-    if (i === bezierPoints.length - 1) {
-      ctx.moveTo(pt.x, pt.y);
-    } else {
-      ctx.lineTo(pt.x, pt.y);
+  if (paramConfig.getVal("draw-lines-between-points")) {
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = bezierPoints.length - 1; i >= 0; i--) {
+      const pt = bezierPoints[i].pt;
+      if (i === bezierPoints.length - 1) {
+        ctx.moveTo(pt.x, pt.y);
+      } else {
+        ctx.lineTo(pt.x, pt.y);
+      }
     }
+    ctx.stroke();
   }
-  ctx.stroke();
 
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  for (let i in curvePoints) {
-    const pt = curvePoints[i];
-    if (i === "0") {
-      ctx.moveTo(pt.x, pt.y);
-    } else {
-      ctx.lineTo(pt.x, pt.y);
+  if (paramConfig.getVal("draw-bezier-curve")) {
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i in curvePoints) {
+      const pt = curvePoints[i];
+      if (i === "0") {
+        ctx.moveTo(pt.x, pt.y);
+      } else {
+        ctx.lineTo(pt.x, pt.y);
+      }
     }
+    ctx.stroke();
   }
-  ctx.stroke();
 }
 
 function init() {

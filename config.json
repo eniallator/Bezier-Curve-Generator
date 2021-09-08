@@ -18,5 +18,23 @@
             "min": 2,
             "max": 25
         }
+    },
+    {
+        "id": "draw-rainbow-lines",
+        "label": "Draw Rainbow Lines",
+        "type": "checkbox",
+        "default": true
+    },
+    {
+        "id": "draw-lines-between-points",
+        "label": "Draw Lines Between Points",
+        "type": "checkbox",
+        "default": true
+    },
+    {
+        "id": "draw-bezier-curve",
+        "label": "Draw Bezier Curve",
+        "type": "checkbox",
+        "default": true
     }
 ]
