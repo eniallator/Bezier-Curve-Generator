@@ -10,6 +10,7 @@ const numberParam = {
 const BASE64CHARS =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+-";
 function intToBase64(n) {
+  if (n === 0) return BASE64CHARS[n];
   let base64Str = "";
   while (n) {
     base64Str = BASE64CHARS[((n % 64) + 64) % 64] + base64Str;
