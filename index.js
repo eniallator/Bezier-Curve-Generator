@@ -87,7 +87,12 @@ function initSpanDragEvents(span, index) {
     updateBezierPointDistances();
     if (!oldPos.equals(spanPos)) {
       needsUpdating = true;
-      draw();
+      if (
+        !paramConfig.getVal("dynamic-precision") ||
+        numPopulatedPoints == paramConfig.getVal("precision")
+      ) {
+        draw();
+      }
     }
   };
 
@@ -140,7 +145,7 @@ function bezierCurve(points, t) {
 let needsUpdating = true;
 
 let curvePoints;
-const numPopulatedPointsPerIteration = 10;
+const numPopulatedPointsPerIteration = 50;
 let numPopulatedPoints = 0;
 
 function draw() {
