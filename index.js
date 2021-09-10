@@ -20,16 +20,14 @@ paramConfig.addCopyToClipboardHandler("#share-btn", () =>
       acc +
       intToBase64(
         Math.floor(
-          ((item.pt.x - $("#bezier-points span")[i].offsetWidth / 2) /
-            canvas.width) *
-            64
+          (item.pt.x - $("#bezier-points span")[i].offsetWidth / 2) /
+            (canvas.width / 64)
         )
       ) +
       intToBase64(
         Math.floor(
-          ((item.pt.y - $("#bezier-points span")[i].offsetHeight / 2) /
-            canvas.height) *
-            64
+          (item.pt.y - $("#bezier-points span")[i].offsetHeight / 2) /
+            (canvas.height / 64)
         )
       ),
     ""
@@ -79,23 +77,18 @@ function initSpanDragEvents(span, index) {
   );
 
   const updateSpanPos = (x, y) => {
+    const oldPos = spanPos.copy();
     spanPos.setHead(
       clamp(x, span.offsetWidth / 2, canvas.width - span.offsetWidth / 2),
       clamp(y, span.offsetHeight / 2, canvas.height - span.offsetHeight / 2)
     );
-    span.style.left = `${clamp(
-      x - span.offsetWidth / 2,
-      0,
-      canvas.width - span.offsetWidth
-    )}px`;
-    span.style.top = `${clamp(
-      y - span.offsetHeight / 2,
-      0,
-      canvas.height - span.offsetHeight
-    )}px`;
+    span.style.left = `${spanPos.x - span.offsetWidth / 2}px`;
+    span.style.top = `${spanPos.y - span.offsetHeight / 2}px`;
     updateBezierPointDistances();
-    needsUpdating = true;
-    draw();
+    if (!oldPos.equals(spanPos)) {
+      needsUpdating = true;
+      draw();
+    }
   };
 
   span.ondragend = span.ontouchend = (evt) => {
