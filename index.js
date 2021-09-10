@@ -354,6 +354,7 @@ function init() {
   initializing = false;
 
   updateBezierPointDistances();
+  needsUpdating = true;
   draw();
 }
 
