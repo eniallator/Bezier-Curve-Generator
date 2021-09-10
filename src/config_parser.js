@@ -18,7 +18,7 @@ function intToBase64(n) {
   return base64Str;
 }
 
-function base64ToPosInt(str, p) {
+function base64ToPosInt(str) {
   let n = 0;
   for (let char of str) {
     n = n * 64 + BASE64CHARS.indexOf(char);

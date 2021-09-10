@@ -1,5 +1,15 @@
 [
     {
+        "id": "num-bezier-points",
+        "label": "Number of Bezier Points",
+        "type": "number",
+        "default": 2,
+        "attrs": {
+            "min": 2,
+            "max": 25
+        }
+    },
+    {
         "id": "precision",
         "label": "Curve Precision",
         "type": "number",
@@ -10,14 +20,11 @@
         }
     },
     {
-        "id": "num-bezier-points",
-        "label": "Number of Bezier Points",
-        "type": "number",
-        "default": 2,
-        "attrs": {
-            "min": 2,
-            "max": 25
-        }
+        "id": "dynamic-precision",
+        "label": "Dynamic Curve Precision",
+        "type": "checkbox",
+        "tooltip": "Updates the curve precision to higher and higher values over time",
+        "default": false
     },
     {
         "id": "draw-rainbow-lines",

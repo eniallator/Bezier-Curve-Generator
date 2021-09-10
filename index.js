@@ -50,6 +50,7 @@ window.onresize = (evt) => {
       spans[i].style.top =
         bezierPoints[i].pt.y - spans[i].offsetHeight / 2 + "px";
     }
+    needsUpdating = true;
     draw();
   }
 };
@@ -93,6 +94,7 @@ function initSpanDragEvents(span, index) {
       canvas.height - span.offsetHeight
     )}px`;
     updateBezierPointDistances();
+    needsUpdating = true;
     draw();
   };
 
@@ -142,15 +144,53 @@ function bezierCurve(points, t) {
   return beta[0];
 }
 
+let needsUpdating = true;
+
+let curvePoints;
+const numPopulatedPointsPerIteration = 10;
+let numPopulatedPoints = 0;
+
 function draw() {
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   const precision = paramConfig.getVal("precision");
-  const curvePoints = new Array(precision)
-    .fill()
-    .map((_, i) => bezierCurve(bezierPoints, i / precision));
+  let indicesUpdated;
 
-  curvePoints.push(bezierPoints[bezierPoints.length - 1].pt);
+  if (paramConfig.getVal("dynamic-precision")) {
+    if (needsUpdating) {
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      needsUpdating = false;
+      numPopulatedPoints = 0;
+      curvePoints = new Array(precision).fill();
+      curvePoints.push(bezierPoints[bezierPoints.length - 1].pt);
+    }
+    const numPointsToPopulate = Math.min(
+      numPopulatedPointsPerIteration,
+      precision - numPopulatedPoints
+    );
+    const pointsUpdated = new Array(numPointsToPopulate)
+      .fill()
+      .map((_, i) =>
+        Math.floor((precision - (numPopulatedPoints + i)) * Math.random())
+      )
+      .sort((a, b) => a - b);
+    indicesUpdated = new Array(numPointsToPopulate).fill();
+    numPopulatedPoints += numPointsToPopulate;
+    let j = 0;
+    let k = 0;
+    for (let i = 0; i < numPointsToPopulate; i++) {
+      while (curvePoints[j] !== undefined || k < pointsUpdated[i]) {
+        j++;
+        k += curvePoints[j] === undefined;
+      }
+      curvePoints[j] = bezierCurve(bezierPoints, j / precision);
+      indicesUpdated[i] = j;
+    }
+  } else {
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    curvePoints = new Array(precision)
+      .fill()
+      .map((_, i) => bezierCurve(bezierPoints, i / precision));
+    curvePoints.push(bezierPoints[bezierPoints.length - 1].pt);
+  }
 
   if (paramConfig.getVal("draw-rainbow-lines")) {
     const fullDist = bezierPoints.reduce(
@@ -161,7 +201,13 @@ function draw() {
     let nextAccBezierDist = 0;
     let accBezierDist = 0;
 
-    for (let i = 0; i < precision; i++) {
+    ctx.lineWidth = 2;
+    const iterations = paramConfig.getVal("dynamic-precision")
+      ? indicesUpdated.length
+      : precision;
+    for (let j = 0; j < iterations; j++) {
+      const i = paramConfig.getVal("dynamic-precision") ? indicesUpdated[j] : j;
+      if (curvePoints[i] === undefined) continue;
       const percent = i / precision;
       const currDist = percent * fullDist;
       let lastPoint = false;
@@ -196,7 +242,11 @@ function draw() {
   }
 
   ctx.strokeStyle = "white";
-  if (paramConfig.getVal("draw-lines-between-points")) {
+  if (
+    paramConfig.getVal("draw-lines-between-points") &&
+    (!paramConfig.getVal("dynamic-precision") ||
+      numPopulatedPoints === precision)
+  ) {
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let i = bezierPoints.length - 1; i >= 0; i--) {
@@ -210,10 +260,15 @@ function draw() {
     ctx.stroke();
   }
 
-  if (paramConfig.getVal("draw-bezier-curve")) {
+  if (
+    paramConfig.getVal("draw-bezier-curve") &&
+    (!paramConfig.getVal("dynamic-precision") ||
+      numPopulatedPoints === precision)
+  ) {
     ctx.lineWidth = 3;
     ctx.beginPath();
     for (let i in curvePoints) {
+      if (curvePoints[i] === undefined) continue;
       const pt = curvePoints[i];
       if (i === "0") {
         ctx.moveTo(pt.x, pt.y);
@@ -222,6 +277,13 @@ function draw() {
       }
     }
     ctx.stroke();
+  }
+
+  if (
+    paramConfig.getVal("dynamic-precision") &&
+    numPopulatedPoints < precision
+  ) {
+    requestAnimationFrame(draw);
   }
 }
 
@@ -276,12 +338,16 @@ function init() {
           bezierPoints.splice(i, 1);
         }
       }
+      needsUpdating = true;
       draw();
     },
     ["num-bezier-points"]
   );
 
-  paramConfig.addListener(() => draw());
+  paramConfig.addListener(() => {
+    needsUpdating = true;
+    draw();
+  });
 
   paramConfig.tellListeners(true);
 
